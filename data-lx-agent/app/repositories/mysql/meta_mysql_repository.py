@@ -61,3 +61,31 @@ class MetaMysqlRepository:
         # 查询返回结果
         return await self.session.get(TableInfoMySQL, table_id)
 
+    async def get_schema_lag_minutes(self) -> float | None:
+        """
+        元数据字典距离上一次成功同步已经过了多少分钟。
+        拿不到（水位表还没建、连接异常）时返回 None，由策略层决定「不阻塞」。
+        :return: 分钟数 或 None
+        """
+        sql = text("select timestampdiff(second, max(last_synced_at), now()) from meta_sync_state")
+        try:
+            seconds = (await self.session.execute(sql)).scalar()
+        except Exception:
+            # 水位表缺失属于「测量缺失」，不能当成「数据陈旧」把用户拦住
+            return None
+        if seconds is None:
+            return None
+        return max(float(seconds), 0.0) / 60
+
+    async def mark_schema_synced(self, scope: str = "all", status: str = "ok"):
+        """
+        同步成功后刷新水位
+        :param scope: all 或具体表名
+        :param status: ok / failed
+        """
+        sql = text(
+            "insert into meta_sync_state(table_name, last_synced_at, status) "
+            "values(:scope, now(), :status) "
+            "on duplicate key update last_synced_at = now(), status = :status"
+        )
+        await self.session.execute(sql, {"scope": scope, "status": status})

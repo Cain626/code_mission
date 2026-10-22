@@ -1,4 +1,5 @@
 from sqlalchemy.ext.asyncio.session import AsyncSession
+from sqlalchemy import bindparam
 from sqlalchemy.sql.expression import text
 
 
@@ -52,3 +53,22 @@ class DWMysqlRepository:
         """
         result = await self.session.execute(text(sql))
         return [dict(row) for row in result.mappings().fetchall()]
+
+    async def get_live_columns(self, table_names: list[str]) -> dict[str, set[str]]:
+        """
+        从活库 information_schema 取这些表的真实字段，用于和元数据字典做秒级比对。
+        只查结构性字段，不读数据，单次开销远小于一次全量重建。
+        :param table_names: 元数据字典里出现的表名
+        :return: {表名: {字段名, ...}}；活库里不存在的表返回空集合
+        """
+        if not table_names:
+            return {}
+        sql = text(
+            "select table_name, column_name from information_schema.columns "
+            "where table_schema = database() and table_name in :names"
+        ).bindparams(bindparam("names", expanding=True))
+        result = await self.session.execute(sql, {"names": list(table_names)})
+        columns: dict[str, set[str]] = {name: set() for name in table_names}
+        for table_name, column_name in result.fetchall():
+            columns.setdefault(table_name, set()).add(column_name)
+        return columns

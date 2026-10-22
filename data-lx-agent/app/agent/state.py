@@ -51,3 +51,6 @@ class DataAgentState(TypedDict):
     db_info: DBInfoStata  # 数据库环境信息
     sql: str
     error: str  # 错误信息，根据state中是否存在错误信息，可以进行流程执行
+    schema_lag_minutes: float | None  # 生成 SQL 时元数据快照已滞后的分钟数
+    schema_status: str  # pass/refresh/blocked/error，闸门结论，供埋点统计
+    blocked_reason: str | None  # 非空表示本次请求被拦截，不再往下走

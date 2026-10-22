@@ -1,7 +1,7 @@
 import asyncio
 from pathlib import Path
 
-from Lib import argparse
+import argparse
 
 from app.clients.embedding_client_manager import embedding_client_manager
 from app.clients.es_client_manager import es_client_manager
@@ -13,6 +13,7 @@ from app.repositories.mysql.dw_mysql_repository import DWMysqlRepository
 from app.repositories.mysql.meta_mysql_repository import MetaMysqlRepository
 from app.repositories.qdrant.column_qdrant_repository import ColumnQdrantRepository
 from app.repositories.qdrant.metric_qdrant_repository import MetricQdrantRepository
+from app.core.log import logger
 from app.services.meta_knowledge_service import MetaKnowledgeService
 
 
@@ -47,6 +48,12 @@ async def build(file_path:Path):
         )
         # 调用业务层
         await meta_knowledge_service.build(file_path)
+        # 同步成功后落一次水位，供生成前的元数据闸门判断字典新旧
+        try:
+            await meta_mysql_repository.mark_schema_synced("all", "ok")
+            await meta_session.commit()
+        except Exception as e:
+            logger.warning(f"写入元数据同步水位失败（不影响本次构建）: {e}")
     # 释放资源
     await meta_mysql_client_manager.close()
     await dw_mysql_client_manager.close()
