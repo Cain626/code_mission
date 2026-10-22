@@ -23,6 +23,7 @@ data/processed/*
 # ---- 产物 ----
 reports/figures/*
 !reports/figures/.gitkeep
+!reports/figures/*.png
 reports/profile_*.md
 
 # ---- 编辑器 / 系统 ----
