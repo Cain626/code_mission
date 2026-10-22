@@ -1,0 +1,41 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.ipynb_checkpoints/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ---- 数据（体积大 / 可能有敏感信息，默认不入库）----
+data/raw/*
+!data/raw/.gitkeep
+data/interim/*
+!data/interim/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+*.parquet
+*.feather
+*.pkl
+
+# ---- 产物 ----
+reports/figures/*
+!reports/figures/.gitkeep
+reports/profile_*.md
+
+# ---- 编辑器 / 系统 ----
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---- 本地会话/工作目录（不入库）----
+.workbuddy/
+
+# ---- 密钥 ----
+.env
+*.key
+*.pem

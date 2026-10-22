@@ -1,0 +1,22 @@
+# 数据分析依赖（版本为本机验证过的组合，Python 3.13）
+# 安装：pip install -i https://pypi.org/simple -r requirements.txt
+
+# 数据处理
+pandas==3.0.5
+numpy==2.5.2
+pyarrow==25.0.1      # parquet / feather 读写
+scipy==1.18.1        # 统计检验
+duckdb==2.0.0        # 大 CSV 直接跑 SQL，比 pandas 快很多
+openpyxl==3.1.5      # 导出 xlsx
+
+# 可视化
+matplotlib==3.11.2
+seaborn==0.13.2
+
+# 交互分析
+jupyterlab==4.6.4
+ipykernel==7.4.0
+
+# 工具
+tabulate==0.10.0
+charset-normalizer==3.5.1   # CSV 编码探测
