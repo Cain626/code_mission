@@ -36,6 +36,13 @@ desktop.ini
 # ---- 本地会话/工作目录（不入库）----
 .workbuddy/
 
+# ---- 引入的完整项目代码（问穹系统）----
+node_modules/
+dist/
+data-lx-agent/logs/
+data-lx-agent/docker/embedding/
+data-lx-agent/conf/app_config.yaml
+
 # ---- 密钥 ----
 .env
 *.key

@@ -1,0 +1,193 @@
+tables:
+  - name: dim_region
+    role: dim
+    description: 旅游目的地地区维度表，用于描述旅游订单发生的地理区域信息，包含西南、华中、华东、华南、西北、华北六大区。
+    columns:
+      - name: region_id
+        role: primary_key
+        description: 地区唯一标识，格式R001-R006。
+        alias: [ 地区ID, 区域ID, 目的地ID ]
+        sync: false
+
+      - name: province
+        role: dimension
+        description: 旅游目的地所在的省份名称。
+        alias: [ 省份, 省, 所在省份, 目的地省份 ]
+        sync: true
+
+      - name: region_name
+        role: dimension
+        description: 旅游目的地所属的大区名称，如西南、华东、华南等。
+        alias: [ 地区, 区域, 大区, 旅游大区 ]
+        sync: true
+
+      - name: country
+        role: dimension
+        description: 旅游目的地所属国家名称。
+        alias: [ 国家, 国家名称, 目的地国家 ]
+        sync: true
+
+
+  - name: dim_customer
+    role: dim
+    description: 游客维度表，描述下单游客的基本属性信息，包括姓名、性别和会员等级。
+    columns:
+      - name: customer_id
+        role: primary_key
+        description: 游客唯一标识，格式C001-C024。
+        alias: [ 游客ID, 用户ID, 客户ID ]
+        sync: false
+
+      - name: customer_name
+        role: dimension
+        description: 游客姓名。
+        alias: [ 游客姓名, 用户名称, 客户名称, 姓名 ]
+        sync: true
+
+      - name: gender
+        role: dimension
+        description: 游客性别。
+        alias: [ 性别, 游客性别 ]
+        sync: true
+
+      - name: member_level
+        role: dimension
+        description: 游客会员等级，包括钻石、铂金、黄金、白银、青铜五个等级。
+        alias: [ 会员等级, 用户等级, 游客等级, 会员级别 ]
+        sync: true
+
+
+  - name: dim_product
+    role: dim
+    description: 旅游产品维度表，描述旅游产品的基本属性信息，包括产品名称、品类和供应商。
+    columns:
+      - name: product_id
+        role: primary_key
+        description: 旅游产品唯一标识，格式P001-P020。
+        alias: [ 产品ID, 商品ID, 旅游产品ID ]
+        sync: false
+
+      - name: product_name
+        role: dimension
+        description: 旅游产品名称，如"丽江古城纯玩3日游"。
+        alias: [ 产品名称, 商品名称, 旅游产品, 线路名称 ]
+        sync: true
+
+      - name: category
+        role: dimension
+        description: 旅游产品品类，包括跟团游、自由行、一日游等。
+        alias: [ 产品类别, 品类, 分类, 旅游类型 ]
+        sync: true
+
+      - name: brand
+        role: dimension
+        description: 旅游产品供应商/品牌，如携程旅行、飞猪旅行、途牛旅行等。
+        alias: [ 品牌, 供应商, 旅行社, 品牌名称 ]
+        sync: true
+
+
+  - name: dim_date
+    role: dim
+    description: 时间维度表，用于按年、季度、月、日等多时间粒度进行旅游数据分析。
+    columns:
+      - name: date_id
+        role: primary_key
+        description: 日期唯一标识，格式yyyyMMdd，如20250101。
+        alias: [ 日期ID, 日期, 时间ID ]
+        sync: false
+
+      - name: year
+        role: dimension
+        description: 年份，如2025。
+        alias: [ 年, 年份, 年度 ]
+        sync: false
+
+      - name: quarter
+        role: dimension
+        description: 季度，格式Q1、Q2等。
+        alias: [ 季度, 季 ]
+        sync: true
+
+      - name: month
+        role: dimension
+        description: 月份，1-12。
+        alias: [ 月, 月份, 月度 ]
+        sync: false
+
+      - name: day
+        role: dimension
+        description: 日，1-31。
+        alias: [ 日, 天, 日期号 ]
+        sync: false
+
+  - name: fact_order
+    role: fact
+    description: 旅游订单事实表，记录游客购买旅游产品的订单信息，包括预订人数和订单金额等核心指标。
+    columns:
+      - name: order_id
+        role: primary_key
+        description: 旅游订单唯一标识，格式ORD+日期+序号。
+        alias: [ 订单ID, 订单编号, 旅游订单号 ]
+        sync: false
+
+      - name: customer_id
+        role: foreign_key
+        description: 关联游客维度表(dim_customer)的外键，标识下单游客。
+        alias: [ 游客ID, 用户ID, 客户ID, 下单游客 ]
+        sync: false
+
+      - name: product_id
+        role: foreign_key
+        description: 关联旅游产品维度表(dim_product)的外键，标识购买的产品。
+        alias: [ 产品ID, 商品ID, 旅游产品ID, 购买产品 ]
+        sync: false
+
+      - name: date_id
+        role: foreign_key
+        description: 关联时间维度表(dim_date)的外键，标识订单下单日期。
+        alias: [ 日期, 下单日期, 订单日期, 旅游日期 ]
+        sync: false
+
+      - name: region_id
+        role: foreign_key
+        description: 关联地区维度表(dim_region)的外键，标识旅游目的地。
+        alias: [ 地区ID, 区域ID, 目的地ID, 旅游目的地 ]
+        sync: false
+
+      - name: order_quantity
+        role: measure
+        description: 订单中旅游产品的预订人数/购买数量。
+        alias: [ 预订人数, 购买数量, 出行人数, 人数, 销量 ]
+        sync: false
+
+      - name: order_amount
+        role: measure
+        description: 旅游订单总金额，单位为元。
+        alias: [ 销售额, 订单金额, 收入, 成交金额, 旅游消费 ]
+        sync: false
+
+
+metrics:
+  - name: GMV
+    description: 全称Gross Merchandise Value，表示所有旅游订单的成交金额总和，反映旅游业务的总交易规模。
+    relevant_columns:
+      - fact_order.order_amount
+    alias: [ 成交总额, 订单总额, 旅游GMV, 总交易额, 总销售额 ]
+
+  - name: AOV
+    description: 全称Average Order Value，表示所有旅游订单的平均成交金额，反映游客的单次消费水平。
+    relevant_columns:
+      - fact_order.order_amount
+    alias: [ 平均单价, 平均订单金额, 客单价, 人均消费, 订单均价 ]
+
+  - name: total_orders
+    description: 旅游订单总数，反映旅游业务的总订单量。
+    relevant_columns:
+      - fact_order.order_id
+    alias: [ 订单总量, 总订单数, 下单次数, 订单量 ]
+
+  - name: total_travelers
+    description: 旅游出行总人数，即所有订单的预订人数总和，反映旅游业务服务的总人次。
+    relevant_columns:
+      - fact_order.order_quantity
+    alias: [ 总出行人数, 服务人次, 游客总量, 总接待人数, 出游人次 ]
